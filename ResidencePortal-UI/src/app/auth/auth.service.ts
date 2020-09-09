@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { User } from './user';
 
 import { environment } from '../../environments/environment';
+import { AppInsightsService } from '../app-insights.service';
 
 const api = environment.baseApiUrl;
 
@@ -14,12 +15,16 @@ export class AuthService {
   public hasError = false;
   public errorMessage = '';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private appInsights: AppInsightsService) { }
 
   private loadUser(authenticateUser: User): User {
     // tslint:disable-next-line
     Object.assign(this.user, authenticateUser);
-
+    if (this.user.isAuthenticated) {
+      this.appInsights.instance.setAuthenticatedUserContext(this.user.userId, this.user.role);
+    } else {
+      this.appInsights.instance.clearAuthenticatedUserContext();
+    }
     return this.user;
   }
 
@@ -38,18 +43,18 @@ export class AuthService {
       username: username,
       password: password
     })
-    .subscribe(user => {
-      const userObj: User = {
-        isAuthenticated: true,
-        userId: user.userId,
-        name: user.name,
-        role: user.group
-      };
-      this.loadUser(userObj);
-    }, error => {
-      this.errorMessage = 'Invalid Login';
-      this.hasError = true;
-    });
+      .subscribe(user => {
+        const userObj: User = {
+          isAuthenticated: true,
+          userId: user.userId,
+          name: user.name,
+          role: user.group
+        };
+        this.loadUser(userObj);
+      }, error => {
+        this.errorMessage = 'Invalid Login';
+        this.hasError = true;
+      });
   }
 
   public logout() {

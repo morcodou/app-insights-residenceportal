@@ -3,6 +3,7 @@ import { Activity } from './activity';
 import { ActivityService } from './activity.service';
 import { User } from '../auth/user';
 import { AuthService } from '../auth/auth.service';
+import { AppInsightsService } from '../app-insights.service';
 
 @Component({
   selector: 'app-activities',
@@ -13,6 +14,7 @@ export class ActivitiesComponent implements OnInit {
   addingActivity = false;
   activities: any = [];
   selectedActivity: Activity;
+  hasMadeEdit = false;
 
   get user(): User {
     return this.auth.getAuthenticatedUser();
@@ -20,7 +22,8 @@ export class ActivitiesComponent implements OnInit {
 
   constructor(
     private activityService: ActivityService,
-    private auth: AuthService
+    private auth: AuthService,
+    private appInsights: AppInsightsService
   ) {}
 
   ngOnInit() {
@@ -39,6 +42,7 @@ export class ActivitiesComponent implements OnInit {
         this.selectedActivity = null;
       }
     });
+    this.trackHasMadeEdits();
   }
 
   getActivities() {
@@ -50,6 +54,7 @@ export class ActivitiesComponent implements OnInit {
   enableAddMode() {
     this.addingActivity = true;
     this.selectedActivity = new Activity();
+    this.trackHasMadeEdits();
   }
 
   onSelect(activity: Activity) {
@@ -66,6 +71,13 @@ export class ActivitiesComponent implements OnInit {
           this.selectedActivity = null;
           this.activities.push(activity);
         });
+    }
+  }
+
+  private trackHasMadeEdits(){
+    if(!this.hasMadeEdit) {
+      this.appInsights.instance.trackEvent({name : 'EmployeeMadeEdit'});
+      this.hasMadeEdit = true;
     }
   }
 }
