@@ -4,7 +4,11 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const routes = require('./api/routes');
 const appInsights = require('applicationinsights');
-appInsights.setup().start();
+appInsights.setup();
+
+const key = appInsights.defaultClient.context.keys.cloudRole;
+appInsights.defaultClient.context.tags[key] = 'FabrikamResidences-API'
+appInsights.start();
 
 const root = './';
 const port = process.env.PORT || '3000';

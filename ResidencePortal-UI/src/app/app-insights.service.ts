@@ -10,7 +10,8 @@ instance : ApplicationInsights;
 
   constructor() { 
     this.instance = new ApplicationInsights({ config : {
-      instrumentationKey : environment.appInsights.instrumentationKey
+      instrumentationKey : environment.appInsights.instrumentationKey,
+      enableCorsCorrelation:true
     }});
 
     this.instance.loadAppInsights();
