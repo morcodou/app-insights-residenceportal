@@ -11,7 +11,8 @@ instance : ApplicationInsights;
   constructor() { 
     this.instance = new ApplicationInsights({ config : {
       instrumentationKey : environment.appInsights.instrumentationKey,
-      enableCorsCorrelation:true
+      enableCorsCorrelation:true,
+      enableAutoRouteTracking:true
     }});
 
     this.instance.loadAppInsights();
